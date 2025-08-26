@@ -68,8 +68,5 @@ jobs:
       - name: Wait for Synapse to be healthy
         timeout-minutes: 5
         run: |
-          until curl -f http://localhost:8008/_matrix/client/versions; do
-            echo "Waiting for Synapse to be healthy..."
-            sleep 5
-          done
+          curl --retry 10 --retry-delay 5 -f http://localhost:8008/_matrix/client/versions
           echo "Synapse is healthy!"
