@@ -71,6 +71,14 @@ jobs:
         if: always()
         run: docker logs synapse
 
+      - name: Inspect Synapse container volume
+        if: always()
+        run: |
+          echo "Listing /data from inside Synapse container:"
+          docker exec synapse ls -l /data || true
+          echo "Attempting to cat /data/homeserver.yaml from inside Synapse container:"
+          docker exec synapse cat /data/homeserver.yaml || true
+
       - name: Wait for Synapse to be healthy
         timeout-minutes: 5
         run: |
