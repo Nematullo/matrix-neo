@@ -11,16 +11,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Create local data directory
+        run: mkdir -p ${{ github.workspace }}/synapse-data
+
       - name: Docker login
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Create Docker volumes
-        run: |
-          docker volume rm synapse_data_volume || true
-          docker volume create synapse_data_volume || true
 
       - name: Remove old containers
         run: docker rm -f synapse synapse-nginx 2>/dev/null || true
@@ -28,16 +26,16 @@ jobs:
       - name: Generate Synapse config
         run: |
           docker run --rm \
-            -v synapse_data_volume:/data \
+            -v ${{ github.workspace }}/synapse-data:/data \
             -e SYNAPSE_SERVER_NAME="${{ secrets.SYNAPSE_SERVER_IP }}" \
             -e SYNAPSE_REPORT_STATS=no \
             matrixdotorg/synapse:latest generate
 
       - name: Fix ownership
-        run: docker run --rm -v synapse_data_volume:/data alpine chown -R 991:991 /data
+        run: docker run --rm -v ${{ github.workspace }}/synapse-data:/data alpine chown -R 991:991 /data
 
       - name: Verify Synapse config
-        run: docker run --rm -v synapse_data_volume:/data alpine cat /data/homeserver.yaml
+        run: docker run --rm -v ${{ github.workspace }}/synapse-data:/data alpine cat /data/homeserver.yaml
 
       - name: Create docker-compose.yml
         run: |
@@ -48,7 +46,7 @@ jobs:
               container_name: synapse
               restart: unless-stopped
               volumes:
-                - synapse_data_volume:/data
+                - ${{ github.workspace }}/synapse-data:/data
               ports:
                 - "8008:8008"
               environment:
@@ -60,9 +58,7 @@ jobs:
               ports:
                 - "2050:443"
               volumes:
-                - ./nginx.conf:/etc/nginx/conf.d/synapse.conf
-          volumes:
-            synapse_data_volume:
+                - ${{ github.workspace }}/nginx.conf:/etc/nginx/conf.d/synapse.conf
           EOF
 
       - name: Show generated docker-compose.yml
