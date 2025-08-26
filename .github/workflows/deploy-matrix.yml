@@ -50,6 +50,8 @@ jobs:
                 - synapse_data_volume:/data
               ports:
                 - "8008:8008"
+              environment:
+                - SYNAPSE_CONFIG_DIR=/data
             synapse-nginx:
               image: nginx:latest
               container_name: synapse-nginx
