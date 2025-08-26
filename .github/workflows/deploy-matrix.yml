@@ -51,7 +51,7 @@ jobs:
               ports:
                 - "8008:8008"
               environment:
-                - SYNAPSE_CONFIG_DIR=/data
+                - SYNAPSE_CONFIG_PATH=/data/homeserver.yaml
             synapse-nginx:
               image: nginx:latest
               container_name: synapse-nginx
