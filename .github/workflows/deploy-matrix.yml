@@ -25,17 +25,24 @@ jobs:
 
       - name: Generate Synapse config
         run: |
+          set -x
+          ls -l /data # Before generate
           docker run --rm \
             -v synapse_data_volume:/data \
             -e SYNAPSE_SERVER_NAME="${{ secrets.SYNAPSE_SERVER_IP }}" \
             -e SYNAPSE_REPORT_STATS=no \
             matrixdotorg/synapse:latest generate
+          ls -l /data # After generate
+          if [ ! -f /data/homeserver.yaml ]; then
+            echo "Error: homeserver.yaml was not generated in /data!"
+            exit 1
+          fi
 
       - name: Fix ownership
         run: docker run --rm -v synapse_data_volume:/data alpine chown -R 991:991 /data
 
       - name: Verify Synapse config
-        run: docker run --rm -v synapse_data_volume:/data alpine ls -l /data
+        run: docker run --rm -v synapse_data_volume:/data alpine cat /data/homeserver.yaml
 
       - name: Create docker-compose.yml
         run: |
