@@ -34,6 +34,9 @@ jobs:
       - name: Fix ownership
         run: docker run --rm -v synapse_data_volume:/data alpine chown -R 991:991 /data
 
+      - name: Verify Synapse config
+        run: docker run --rm -v synapse_data_volume:/data alpine ls -l /data
+
       - name: Create docker-compose.yml
         run: |
           cat > docker-compose.yml <<EOF
