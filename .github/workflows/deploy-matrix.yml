@@ -73,4 +73,4 @@ jobs:
 
       - name: Show last Synapse logs
         if: always()
-        run: docker logs synapse --tail 50
+        run: docker logs synapse
