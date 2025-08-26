@@ -71,6 +71,6 @@ jobs:
           curl --retry 10 --retry-delay 5 -f http://localhost:8008/_matrix/client/versions
           echo "Synapse is healthy!"
 
-      - name: Show last Synapse logs
+      - name: Show last Synapse logs 2
         if: always()
         run: docker logs synapse
