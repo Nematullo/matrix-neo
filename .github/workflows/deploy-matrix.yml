@@ -65,5 +65,11 @@ jobs:
       - name: Run Synapse stack
         run: docker compose up -d
 
-      - name: Check Synapse logs
-        run: docker logs -f synapse
+      - name: Wait for Synapse to be healthy
+        timeout-minutes: 5
+        run: |
+          until curl -f http://localhost:8008/_matrix/client/versions; do
+            echo "Waiting for Synapse to be healthy..."
+            sleep 5
+          done
+          echo "Synapse is healthy!"
