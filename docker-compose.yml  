@@ -1,0 +1,22 @@
+version: "3.9"
+services:
+  synapse:
+    image: matrixdotorg/synapse:latest
+    container_name: synapse
+    restart: unless-stopped
+    volumes:
+      - synapse_data_volume:/data
+    ports:
+      - "8008:8008"  # внутренний client-server API
+
+  synapse-nginx:
+    image: nginx:latest
+    container_name: synapse-nginx
+    restart: unless-stopped
+    ports:
+      - "2050:443"   # внешний порт для клиентов
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+
+volumes:
+  synapse_data_volume:
