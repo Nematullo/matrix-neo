@@ -18,7 +18,9 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Create Docker volumes
-        run: docker volume create synapse_data_volume || true
+        run: |
+          docker volume rm synapse_data_volume || true
+          docker volume create synapse_data_volume || true
 
       - name: Remove old containers
         run: docker rm -f synapse synapse-nginx 2>/dev/null || true
@@ -40,7 +42,6 @@ jobs:
       - name: Create docker-compose.yml
         run: |
           cat > docker-compose.yml <<EOF
-          version: "3.9"
           services:
             synapse:
               image: matrixdotorg/synapse:latest
@@ -63,6 +64,9 @@ jobs:
           volumes:
             synapse_data_volume:
           EOF
+
+      - name: Show generated docker-compose.yml
+        run: cat docker-compose.yml
 
       - name: Run Synapse stack
         run: docker compose up -d
